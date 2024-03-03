@@ -19,16 +19,17 @@ class TicTacToeGame:
         self.GRID_SIZE = 4
         self.MARGIN = 5
 
-        self.CIRCLE_COLOR = (140, 146, 172)
-        self.CROSS_COLOR = (140, 146, 172)
+        #maybe take these out because color was added to function instead
+        #self.CIRCLE_COLOR = (140, 146, 172)
+        #self.CROSS_COLOR = (140, 146, 172)
 
         self.WIDTH = self.size[0] / self.GRID_SIZE - self.MARGIN
         self.HEIGHT = self.size[1] / self.GRID_SIZE - self.MARGIN
 
         pygame.init()
         self.game_reset()
+        self.draw_game()
         self.play_game()
-
 
     def draw_game(self):
         # Create a 2 dimensional array using the column and row variables
@@ -67,16 +68,15 @@ class TicTacToeGame:
 
     def draw_circle(self, x, y):
         # Get the x and y coordinates of the center of the circle
-        cx = (self.WIDTH + self.MARGIN) * x + self.WIDTH / 2
-        cy = (self.HEIGHT + self.MARGIN) * y + self.HEIGHT / 2
+        cx = (self.WIDTH + self.MARGIN) * (x + 0.5)
+        cy = (self.HEIGHT + self.MARGIN) * (y + 0.5)
 
         # radius, with offset
-        radius = min(self.WIDTH, self.HEIGHT) / 2
-        radius = radius - self.MARGIN
+        radius = min(self.WIDTH, self.HEIGHT) / 3 - self.MARGIN
 
         # Draw a circle at the specified position
         # 3 is pixel size of width
-        pygame.draw.circle(self.screen, self.CIRCLE_COLOR, (cx, cy), radius, 3)
+        pygame.draw.circle(self.screen, (0, 0, 255), (int(cx), int(cy)), int(radius), 3)
         pygame.display.update()
 
     def draw_cross(self, x, y):
@@ -88,8 +88,8 @@ class TicTacToeGame:
         cy2 = y * (self.HEIGHT + self.MARGIN) + self.MARGIN + self.HEIGHT * 3 / 4
 
         # Draw the cross
-        pygame.draw.line(self.screen, self.CROSS_COLOR, (cx1, cy1), (cx2, cy2), 3)
-        pygame.draw.line(self.screen, self.CROSS_COLOR, (cx1, cy2), (cx2, cy1), 3)
+        pygame.draw.line(self.screen, (255, 0, 0), (cx1, cy1), (cx2, cy2), 3)
+        pygame.draw.line(self.screen, (255, 0, 0), (cx1, cy2), (cx2, cy1), 3)
 
         pygame.display.update()
 

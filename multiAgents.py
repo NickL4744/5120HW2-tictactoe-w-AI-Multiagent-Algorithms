@@ -2,38 +2,115 @@ from GameStatus_5120 import GameStatus
 
 
 def minimax(game_state: GameStatus, depth: int, maximizingPlayer: bool, alpha=float('-inf'), beta=float('inf')):
-	terminal = game_state.is_terminal()
-	if (depth==0) or (terminal):
-		newScores = game_state.get_scores(terminal)
-		return newScores, None
+    terminal = game_state.is_terminal()
+    if (depth==0) or (terminal):
+        new_scores = game_state.get_scores(terminal)
+        return new_scores, None
 
-	"""
-    YOUR CODE HERE TO FIRST CHECK WHICH PLAYER HAS CALLED THIS FUNCTION (MAXIMIZING OR MINIMIZING PLAYER)
-    YOU SHOULD THEN IMPLEMENT MINIMAX WITH ALPHA-BETA PRUNING AND RETURN THE FOLLOWING TWO ITEMS
-    1. VALUE
-    2. BEST_MOVE
-    
-    THE LINE TO RETURN THESE TWO IS COMMENTED BELOW WHICH YOU CAN USE
-    """
+    if maximizingPlayer:
+        # Initialize the best move and value to negative infinity
+        best_value = float('-inf')
+        best_move = None
 
-	# return value, best_move
+        # Loop through all possible moves
+        for move in game_state.get_valid_moves():
+            # Make the move and get the new game state
+            new_game_state = game_state.make_move(move)
+
+            # Get the value and best move for the minimizing player
+            value, best_move = minimax(new_game_state, depth-1, False, alpha, beta)
+
+            # Update the best value if necessary
+            if value > best_value:
+                best_value = value
+                best_move = move
+
+            # Prune the search tree if necessary
+            alpha = max(alpha, value)
+            if alpha >= beta:
+                break
+
+        # Return the best value and best move
+        return best_value, best_move
+
+    else:
+        # Initialize the best move and value to infinity
+        best_value = float('inf')
+        best_move = None
+
+        # Loop through all possible moves
+        for move in game_state.get_valid_moves():
+            # Make the move and get the new game state
+            new_game_state = game_state.make_move(move)
+
+            # Get the value and best move for the maximizing player
+            value, best_move = negamax(new_game_state, depth-1, True, alpha, beta)
+
+            # Update the best value if necessary
+            if value < best_value:
+                best_value = value
+                best_move = move
+
+            # Prune the search tree if necessary
+            beta = min(beta, value)
+            if alpha >= beta:
+                break
+
+        # Return the best value and best move
+        return -best_value, best_move
+
 
 def negamax(game_status: GameStatus, depth: int, turn_multiplier: int, alpha=float('-inf'), beta=float('inf')):
-	terminal = game_status.is_terminal()
-	if (depth==0) or (terminal):
-		scores = game_status.get_negamax_scores(terminal)
-		return scores, None
+    terminal = game_status.is_terminal()
+    if (depth==0) or (terminal):
+        scores = game_status.get_negamax_scores(terminal)
+        return scores, None
 
-	"""
-    YOUR CODE HERE TO CALL NEGAMAX FUNCTION. REMEMBER THE RETURN OF THE NEGAMAX SHOULD BE THE OPPOSITE OF THE CALLING
-    PLAYER WHICH CAN BE DONE USING -NEGAMAX(). THE REST OF YOUR CODE SHOULD BE THE SAME AS MINIMAX FUNCTION.
-    YOU ALSO DO NOT NEED TO TRACK WHICH PLAYER HAS CALLED THE FUNCTION AND SHOULD NOT CHECK IF THE CURRENT MOVE
-    IS FOR MINIMAX PLAYER OR NEGAMAX PLAYER
-    RETURN THE FOLLOWING TWO ITEMS
-    1. VALUE
-    2. BEST_MOVE
-    
-    THE LINE TO RETURN THESE TWO IS COMMENTED BELOW WHICH YOU CAN USE
-    
-    """
-    #return value, best_move
+    # Determine if it's the maximizing player's turn
+    if turn_multiplier == 1:
+        # Initialize the best move and value to negative infinity
+        best_value = float('-inf')
+        best_move = None
+
+        # Loop through all possible moves
+        for move in game_status.get_valid_moves():
+            # Make the move and get the new game state
+            new_game_status = game_status.make_move(move)
+
+            # Get the value and best move for the minimizing player
+            value, best_move = negamax(new_game_status, depth-1, -1, alpha, beta)
+
+            # Update the best value if necessary
+            best_value = max(best_value, value * turn_multiplier)
+
+            # Prune the search tree if necessary
+            alpha = max(alpha, best_value)
+            if alpha >= beta:
+                break
+
+        # Return the best value and best move
+        return best_value, best_move
+
+    else:
+        # Initialize the best move and value to infinity
+        best_value = float('inf')
+        best_move = None
+
+        # Loop through all possible moves
+        for move in game_status.get_valid_moves():
+            # Make the move and get the new game state
+            new_game_status = game_status.make_move(move)
+
+            # Get the value and best move for the maximizing player
+            value, best_move = negamax(new_game_status, depth-1, 1, alpha, beta)
+
+            # Update the best value if necessary
+            best_value = min(best_value, value * turn_multiplier)
+
+            # Prune the search tree if necessary
+            beta = min(beta, best_value)
+            if alpha >= beta:
+                break
+
+        # Return the best value and best move
+        return -best_value, best_move

@@ -1,4 +1,5 @@
 import pygame
+import pygame_menu
 import numpy as np
 import sys, random
 from GameStatus_5120 import GameStatus
@@ -6,7 +7,7 @@ from multiAgents import minimax, negamax
 
 
 class TicTacToeGame:
-    def __init__(self, size=(600, 600)):
+    def __init__(self, size=(600, 800)):
         # Initialize the game window and other parameters
         self.size = self.width, self.height = size
         # Define some colors
@@ -15,16 +16,15 @@ class TicTacToeGame:
         self.GREEN = (0, 255, 0)
         self.RED = (255, 0, 0)
         self.BLUE = (30,144,255)
+        self.GREY = (192, 192, 192)
 
-        self.GRID_SIZE = 4
-        self.MARGIN = 5
-
-        #maybe take these out because color was added to function instead
-        #self.CIRCLE_COLOR = (140, 146, 172)
-        #self.CROSS_COLOR = (140, 146, 172)
+        self.GRID_SIZE = 3
+        self.MARGIN = 4
 
         self.WIDTH = self.size[0] / self.GRID_SIZE - self.MARGIN
-        self.HEIGHT = self.size[1] / self.GRID_SIZE - self.MARGIN
+        self.HEIGHT = self.size[0] / self.GRID_SIZE - self.MARGIN
+
+        self.reset_button_rect = pygame.Rect(self.width - 110, self.height - 60, 100, 50)
 
         pygame.init()
         self.game_reset()
@@ -42,21 +42,20 @@ class TicTacToeGame:
         for row in range(self.GRID_SIZE):
             for col in range(self.GRID_SIZE):
                 # Get the x and y coordinates of the current grid location
-                x = col * (self.WIDTH + self.MARGIN) + self.MARGIN
-                y = row * (self.HEIGHT + self.MARGIN) + self.MARGIN
+                x = col * (self.WIDTH - 2 + self.MARGIN) + self.MARGIN
+                y = row * (self.HEIGHT - 2 + self.MARGIN) + self.MARGIN
                 # Draw the rectangle for the current grid location
                 pygame.draw.rect(self.screen, self.WHITE, (x, y, self.WIDTH, self.HEIGHT))
 
         # Draw the reset button above the grid
-        reset_button_rect = pygame.Rect(10, 10, 100, 50)
-        pygame.draw.rect(self.screen, self.BLUE, reset_button_rect)
-        font = pygame.font.SysFont(None, 36)
+        self.reset_button_rect = pygame.Rect(self.width - 110, self.height - 60, 100, 50)
+        pygame.draw.rect(self.screen, self.BLUE, self.reset_button_rect)
+        font = pygame.font.SysFont(None, 24)
         text = font.render("Reset", True, self.BLACK)
-        text_rect = text.get_rect(center=reset_button_rect.center)
+        text_rect = text.get_rect(center=self.reset_button_rect.center)
         self.screen.blit(text, text_rect)
 
         pygame.display.update()
-
 
     def change_turn(self):
         # Change the turn indicator in the window title
@@ -182,7 +181,7 @@ class TicTacToeGame:
                 # check if the reset button was clicked
                 elif event.type == pygame.MOUSEBUTTONUP and not player_turn:
                     pos = pygame.mouse.get_pos()
-                    if reset_button_rect.collidepoint(pos):
+                    if self.reset_button_rect.collidepoint(pos):
                         self.game_reset()
                         player_turn = True
 

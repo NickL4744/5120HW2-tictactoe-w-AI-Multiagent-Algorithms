@@ -55,7 +55,7 @@ class TicTacToeGame:
 
         # Draw the reset button above the grid
         self.reset_button_rect = pygame.Rect(self.width - 110, self.height - 60, 100, 50)
-        pygame.draw.rect(self.screen, self.TROMBOME_YELLOW, self.reset_button_rect)
+        pygame.draw.rect(self.screen, self.TROMBONE_YELLOW, self.reset_button_rect)
         font = pygame.font.SysFont(None, 24)
         text = font.render("Reset", True, self.BLACK)
         text_rect = text.get_rect(center=self.reset_button_rect.center)
@@ -154,7 +154,7 @@ class TicTacToeGame:
                     done = True
 
                 # mouse button was released and it is the player's turn
-                elif event.type == pygame.MOUSEBUTTONUP and player_turn:
+                if event.type == pygame.MOUSEBUTTONUP and player_turn:
                     pos = pygame.mouse.get_pos()
 
                     # find approximate column from mouse's x coordinate
@@ -185,11 +185,17 @@ class TicTacToeGame:
                         player_turn = False
 
                 # check if the reset button was clicked
-                elif event.type == pygame.MOUSEBUTTONUP and not player_turn:
-                    pos = pygame.mouse.get_pos()
-                    if self.reset_button_rect.collidepoint(pos):
+                #elif event.type == pygame.MOUSEBUTTONUP and not player_turn:
+                #    pos = pygame.mouse.get_pos()
+                #    if self.reset_button_rect.collidepoint(pos):
+                #        self.game_reset()
+                #        player_turn = True
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    mouse_pos = event.pos
+
+                    if self.reset_button_rect.collidepoint(mouse_pos):
                         self.game_reset()
-                        player_turn = True
+                        
 
             # if AI's turn
             if not player_turn and not self.is_game_over():

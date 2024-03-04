@@ -17,6 +17,12 @@ class TicTacToeGame:
         self.RED = (255, 0, 0)
         self.BLUE = (30,144,255)
         self.GREY = (192, 192, 192)
+        self.RELAXING_PURPLE = (149, 107, 169)
+        self.DARK_PURPLE = (48, 25, 52)
+        self.GOLD = (255, 215, 0)
+        self.TROMBONE_YELLOW = (210, 181, 91)
+        self.CELADON_GREEN = (172, 225, 175)
+
 
         self.GRID_SIZE = 3
         self.MARGIN = 4
@@ -36,7 +42,7 @@ class TicTacToeGame:
         pygame.init()
         self.screen = pygame.display.set_mode(self.size)
         pygame.display.set_caption("Tic Tac Toe Random Grid")
-        self.screen.fill(self.BLACK)
+        self.screen.fill(self.DARK_PURPLE)
         # Draw the grid
 
         for row in range(self.GRID_SIZE):
@@ -45,11 +51,11 @@ class TicTacToeGame:
                 x = col * (self.WIDTH - 2 + self.MARGIN) + self.MARGIN
                 y = row * (self.HEIGHT - 2 + self.MARGIN) + self.MARGIN
                 # Draw the rectangle for the current grid location
-                pygame.draw.rect(self.screen, self.WHITE, (x, y, self.WIDTH, self.HEIGHT))
+                pygame.draw.rect(self.screen, self.RELAXING_PURPLE, (x, y, self.WIDTH, self.HEIGHT))
 
         # Draw the reset button above the grid
         self.reset_button_rect = pygame.Rect(self.width - 110, self.height - 60, 100, 50)
-        pygame.draw.rect(self.screen, self.BLUE, self.reset_button_rect)
+        pygame.draw.rect(self.screen, self.TROMBOME_YELLOW, self.reset_button_rect)
         font = pygame.font.SysFont(None, 24)
         text = font.render("Reset", True, self.BLACK)
         text_rect = text.get_rect(center=self.reset_button_rect.center)
@@ -75,7 +81,7 @@ class TicTacToeGame:
 
         # Draw a circle at the specified position
         # 3 is pixel size of width
-        pygame.draw.circle(self.screen, (0, 0, 255), (int(cx), int(cy)), int(radius), 3)
+        pygame.draw.circle(self.screen, self.GOLD, (int(cx), int(cy)), int(radius), 3)
         pygame.display.update()
 
     def draw_cross(self, x, y):
@@ -87,8 +93,8 @@ class TicTacToeGame:
         cy2 = y * (self.HEIGHT + self.MARGIN) + self.MARGIN + self.HEIGHT * 3 / 4
 
         # Draw the cross
-        pygame.draw.line(self.screen, (255, 0, 0), (cx1, cy1), (cx2, cy2), 3)
-        pygame.draw.line(self.screen, (255, 0, 0), (cx1, cy2), (cx2, cy1), 3)
+        pygame.draw.line(self.screen, self.CELADON_GREEN, (cx1, cy1), (cx2, cy2), 3)
+        pygame.draw.line(self.screen, self.CELADON_GREEN, (cx1, cy2), (cx2, cy1), 3)
 
         pygame.display.update()
 

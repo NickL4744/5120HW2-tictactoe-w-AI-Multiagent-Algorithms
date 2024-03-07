@@ -1,96 +1,163 @@
-from tkinter import *
-import random
+import tkinter as tk
+from tkinter import messagebox
+import time
 
-def next_turn(row,column):
-    global player
-    if buttons[row][column]['text'] == ''and check_winner() is False:
-        if player == players[0]:
-            buttons[row][column]['text'] = player
-            if check_winner() is False:
-                player  = players[1]
-                label.config(text=(players[1]+" turn"))
-            elif check_winner() is True:
-                label.config(text=(player[0]+' wins'))
-            elif check_winner() == "Tie":
-                label.config(text=("Tie!"))
-        else:
-            buttons[row][column]['text'] = player
-            if check_winner() is False:
-                player = players[0]
-                label.config(text=(players[0] + " turn"))
-            elif check_winner() is True:
-                label.config(text=(players[1]+' wins'))
-            elif check_winner() == "Tie":
-                label.config(text=("Tie!"))
-def check_winner():
 
-    for row in range(3):
-        if buttons[row][0]['text'] == buttons[row][1]["text"]== buttons[row][2]['text'] !="":
-            buttons[row][0].config(bg="lime")
-            buttons[row][1].config(bg="lime")
-            buttons[row][2].config(bg="lime")
-            return True
-    for column in range(3):
-        if buttons[0][column]['text'] == buttons[1][column]["text"]== buttons[2][column]['text'] !="":
-            buttons[0][column].config(bg="lime")
-            buttons[1][column].config(bg="lime")
-            buttons[2][column].config(bg="lime")
-            return True
-    if buttons[0][0]['text'] == buttons[1][1]['text'] == buttons[2][2]['text'] != "":
-        buttons[0][0].config(bg="lime")
-        buttons[1][1].config(bg="lime")
-        buttons[2][2].config(bg="lime")
-        return True
-    elif buttons[0][2]['text'] == buttons[1][1]['text'] == buttons[2][0]['text'] != "":
-        buttons[0][2].config(bg="lime")
-        buttons[1][1].config(bg="lime")
-        buttons[2][0].config(bg="lime")
-        return True
-    elif empty_spaces() is False:
-        for row in range(3):
-            for column in range(3):
-                buttons[row][column].config(bg="yellow")
-        return "Tie"
-    else:
-        return False
-def empty_spaces():
-    spaces = 9
-    for row in range(3):
-        for column in range(3):
-            if buttons[row][column]['text'] != '':
-                spaces-=1
-    if spaces == 0:
-        return False
-    else:
-        return True
-def new_game():
-    global player
+class TicTacToe:
+    def __init__(self):
+        self.root = tk.Tk()
+        self.root.title("Tic Tac Toe")
+        self.buttons = []
+        self.button_position_list = []
+        self.current_player = "X"
+        self.game_score = 0  # 0 means draw, > 0 means player won, < 0 means computer won
+        self.game_size = 3  # Initial grid size is 3x3
+        self.board = [""] * (self.game_size ** 2)
+        self.completed_sets = []
+        self.player_wins = {"X": 0, "O": 0}
 
-    player = random.choice(players)
-    label.config(text=player+" turn")
-    for row in range(3):
-        for column in range(3):
-            buttons[row][column].config(text="",bg="#F0F0F0")
-window = Tk()
+        # Add a Reset button
+        reset_button = tk.Button(self.root, text="Reset", command=self.reset_game, bg="orange", fg="black")
+        reset_button.grid(row=0, column=0, padx=10, pady=10)
 
-window.title("Tic-Tac-Toe")
-players = ["x","o"]
-player = random.choice(players)
-buttons = [[0,0,0],
-           [0,0,0],
-           [0,0,0]]
-label = Label(text = player+" turn",font=('consolas',40))
-label.pack(side="top")
+        # Add an Exit button
+        exit_button = tk.Button(self.root, text="Exit", command=self.exit_game, bg="orange", fg="black")
+        exit_button.grid(row=0, column=1, padx=10, pady=10)
 
-reset_button = Button(text='restart',font=('consolas',20), command=new_game)
-reset_button.pack(side="top")\
+        # Add labels for player wins
+        self.player_x_label = tk.Label(self.root, text=f"Player X Wins: {self.player_wins['X']}", font=("Helvetica", 12))
+        self.player_x_label.grid(row=0, column=2, padx=10, pady=10)
 
-frame = Frame(window)
-frame.pack()
+        self.player_o_label = tk.Label(self.root, text=f"Player O Wins: {self.player_wins['O']}", font=("Helvetica", 12))
+        self.player_o_label.grid(row=0, column=3, padx=10, pady=10)
 
-for row in range(3):
-    for column in range(3):
-        buttons[row][column] = Button(frame, text='',font=('consolas',40),width=5,height=2,
-                                      command=lambda row=row,column=column: next_turn(row,column))
-        buttons[row][column].grid(row=row,column=column)
-window.mainloop()
+        # Add a turn label
+        self.turn_label = tk.Label(self.root, text=f"Turn: {self.current_player}", font=("Helvetica", 12))
+        self.turn_label.grid(row=0, column=4, padx=10, pady=10)
+
+        self.create_board()
+
+        # Add a menu bar
+        menubar = tk.Menu(self.root)
+        self.root.config(menu=menubar)
+
+        # Add a menu for grid size selection
+        grid_menu = tk.Menu(menubar, tearoff=0)
+        grid_menu.add_command(label="3x3", command=lambda: self.change_grid_size(3))
+        grid_menu.add_command(label="4x4", command=lambda: self.change_grid_size(4))
+        grid_menu.add_command(label="5x5", command=lambda: self.change_grid_size(5))
+        menubar.add_cascade(label="Grid Size", menu=grid_menu)
+
+        # Initialize the timer
+        self.timer_time = 0
+        self.timer_label = tk.Label(self.root, text="Time: 0 seconds", font=("Helvetica", 12))
+        self.timer_label.grid(row=1, column=0, columnspan=self.game_size, padx=10, pady=5)
+
+        # Start the timer
+        self.update_timer()
+
+    def create_board(self):
+        for row in range(self.game_size):
+            for col in range(self.game_size):
+                button_position = [row, col]
+                self.button_position_list.append(button_position)
+                button = tk.Button(self.root, text="", font=("Helvetica", 24), height=2, width=5,
+                                   command=lambda button_position=button_position: self.clicked(button_position))
+                button.grid(row=row + 2, column=col, padx=5, pady=5, sticky="nswe")
+                self.buttons.append(button)
+
+        # Configure row and column properties to make buttons resize properly
+        for i in range(self.game_size):
+            self.root.grid_rowconfigure(i + 2, weight=1)
+            self.root.grid_columnconfigure(i, weight=1)
+
+    def change_grid_size(self, size):
+        self.game_size = size
+        for button in self.buttons:
+            button.destroy()
+        self.buttons.clear()
+        self.button_position_list.clear()
+        self.board = [""] * (self.game_size ** 2)
+        self.create_board()
+
+    def clicked(self, button_position):
+        board_position = self.button_position_list.index(button_position)
+        if self.board[board_position] == "":
+            self.board[board_position] = self.current_player
+            self.buttons[board_position].config(text=self.current_player)
+            self.current_player = "O" if self.current_player == "X" else "X"
+            self.turn_label.config(text=f"Turn: {self.current_player}")
+            self.check_for_sets()
+
+    def check_for_sets(self):
+        for row in range(self.game_size):
+            for col in range(self.game_size):
+                # There are 8 directions you could go in to find a set
+                # The direction starts north and goes clockwise for each direction iteration
+                direction_logic = [[[row + 1, col], [row + 2, col]], [[row + 1, col + 1], [row + 2, col + 2]],
+                                   [[row, col + 1], [row, col + 2]], [[row - 1, col + 1], [row - 2, col + 2]],
+                                   [[row - 1, col], [row - 2, col]], [[row - 1, col - 1], [row - 2, col - 2]],
+                                   [[row, col - 1], [row, col - 2]], [[row + 1, col - 1], [row + 2, col - 2]]]
+                for direction in range(8):
+                    try:
+                        temp_position_1 = self.button_position_list.index([row, col])
+                        temp_position_2 = self.button_position_list.index(direction_logic[direction][0])
+                        temp_position_3 = self.button_position_list.index(direction_logic[direction][1])
+                        temp_set = [temp_position_1, temp_position_2, temp_position_3]
+                        inverted_temp_set = [temp_position_3, temp_position_2, temp_position_1]
+                        if self.board[temp_position_1] \
+                                == self.board[temp_position_2] \
+                                == self.board[temp_position_3] == "X" and temp_set not in self.completed_sets:
+                            self.player_wins["X"] += 1
+                            self.highlight_winning_set(temp_set, "X")
+                            self.reset_game()
+                            print("Player X wins!")
+                        elif self.board[temp_position_1] \
+                                == self.board[temp_position_2] \
+                                == self.board[temp_position_3] == "O" and temp_set not in self.completed_sets:
+                            self.player_wins["O"] += 1
+                            self.highlight_winning_set(temp_set, "O")
+                            self.reset_game()
+                            print("Player O wins!")
+                    except:
+                        pass
+
+    def highlight_winning_set(self, winning_set, player):
+        for position in winning_set:
+            self.buttons[position].config(bg="green", text=player)
+        self.root.after(1500, self.reset_highlighted_cells, winning_set)
+
+    def reset_highlighted_cells(self, winning_set):
+        for position in winning_set:
+            self.buttons[position].config(bg="SystemButtonFace", text="")
+
+    def reset_game(self):
+        # Clear the board and reset the game
+        for button in self.buttons:
+            button.config(text="")
+        self.board = [""] * (self.game_size ** 2)
+        self.current_player = "X"
+        self.turn_label.config(text=f"Turn: {self.current_player}")
+        self.timer_time = 0
+        self.update_win_labels()
+        self.completed_sets = []
+
+    def exit_game(self):
+        self.root.destroy()
+
+    def update_timer(self):
+        self.timer_time += 1
+        self.timer_label.config(text=f"Time: {self.timer_time} seconds")
+        self.root.after(1000, self.update_timer)  # Update every 1000ms (1 second)
+
+    def update_win_labels(self):
+        self.player_x_label.config(text=f"Player X Wins: {self.player_wins['X']}")
+        self.player_o_label.config(text=f"Player O Wins: {self.player_wins['O']}")
+
+    def run(self):
+        self.root.mainloop()
+
+
+if __name__ == "__main__":
+    game = TicTacToe()
+    game.run()

@@ -112,6 +112,7 @@ class TicTacToe:
             print(f"The player has lost with a score of {self.game_score}")
         else:
             print(f"The game is a draw with a score of {self.game_score}")
+            
     def run(self):
         self.root.mainloop()
 

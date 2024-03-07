@@ -10,7 +10,7 @@ class TicTacToe:
         self.button_position_list = []
         self.current_player = "X"
         self.game_score = 0  # 0 means draw, > 0 means player won, < 0 means computer won
-        self.game_size = 5  # Hardcoded NxN game size that the user can change with buttons most likely
+        self.game_size = 3  # Hardcoded NxN game size that the user can change with buttons most likely
         self.board = [""] * (self.game_size ** 2)
         self.completed_sets = []
 

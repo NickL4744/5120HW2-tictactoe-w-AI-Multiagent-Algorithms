@@ -95,6 +95,7 @@ class TicTacToe:
         self.timer_time = 0
         self.print_game_results()
         self.game_score = 0
+        self.completed_sets = []
 
     def exit_game(self):
         self.print_game_results()

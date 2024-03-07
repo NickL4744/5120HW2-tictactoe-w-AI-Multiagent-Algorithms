@@ -93,8 +93,11 @@ class TicTacToe:
         self.current_player = "X"
         self.turn_label.config(text=f"Turn: {self.current_player}")
         self.timer_time = 0
+        self.print_game_results()
+        self.game_score = 0
 
     def exit_game(self):
+        self.print_game_results()
         self.root.destroy()
 
     def update_timer(self):
@@ -102,6 +105,13 @@ class TicTacToe:
         self.timer_label.config(text=f"Time: {self.timer_time} seconds")
         self.root.after(1000, self.update_timer)  # Update every 1000ms (1 second)
 
+    def print_game_results(self):
+        if self.game_score > 0:
+            print(f"The player has won with a score of {self.game_score}")
+        elif self.game_score < 0:
+            print(f"The player has lost with a score of {self.game_score}")
+        else:
+            print(f"The game is a draw with a score of {self.game_score}")
     def run(self):
         self.root.mainloop()
 
@@ -109,10 +119,3 @@ class TicTacToe:
 if __name__ == "__main__":
     game = TicTacToe()
     game.run()
-    if game.game_score > 0:
-        print(f"The player has won with a score of {game.game_score}")
-    elif game.game_score < 0:
-        print(f"The player has lost with a score of {game.game_score}")
-    else:
-        print(f"The game is a draw with a score of {game.game_score}")
-

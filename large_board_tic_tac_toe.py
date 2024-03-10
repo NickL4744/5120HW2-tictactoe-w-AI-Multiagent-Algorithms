@@ -1,8 +1,9 @@
 import tkinter as tk
 from tkinter import messagebox
 import time
-
-
+import numpy as np
+from GameStatus_5120 import GameStatus
+from multiAgents import minimax, negamax
 class TicTacToe:
     def __init__(self):
         self.root = tk.Tk()
@@ -15,47 +16,53 @@ class TicTacToe:
         self.board = [""] * (self.game_size ** 2)
         self.completed_sets = []
         self.player_wins = {"X": 0, "O": 0}
-
+        self.game_status = GameStatus(np.zeros((self.game_size, self.game_size), dtype=int), True)
         # Add a Reset button
         reset_button = tk.Button(self.root, text="Reset", command=self.reset_game, bg="orange", fg="black")
         reset_button.grid(row=0, column=0, padx=10, pady=10)
-
         # Add an Exit button
         exit_button = tk.Button(self.root, text="Exit", command=self.exit_game, bg="orange", fg="black")
         exit_button.grid(row=0, column=1, padx=10, pady=10)
-
         # Add labels for player wins
         self.player_x_label = tk.Label(self.root, text=f"Player X Wins: {self.player_wins['X']}", font=("Helvetica", 12))
         self.player_x_label.grid(row=0, column=2, padx=10, pady=10)
-
         self.player_o_label = tk.Label(self.root, text=f"Player O Wins: {self.player_wins['O']}", font=("Helvetica", 12))
         self.player_o_label.grid(row=0, column=3, padx=10, pady=10)
-
         # Add a turn label
         self.turn_label = tk.Label(self.root, text=f"Turn: {self.current_player}", font=("Helvetica", 12))
         self.turn_label.grid(row=0, column=4, padx=10, pady=10)
-
+        human_vs_human_button = tk.Button(self.root, text="Human vs Human", command=self.set_human_vs_human, bg="orange", fg="black")
+        human_vs_human_button.grid(row=1, column=0, padx=10, pady=10)
         self.create_board()
-
         # Add a menu bar
         menubar = tk.Menu(self.root)
         self.root.config(menu=menubar)
-
         # Add a menu for grid size selection
         grid_menu = tk.Menu(menubar, tearoff=0)
         grid_menu.add_command(label="3x3", command=lambda: self.change_grid_size(3))
         grid_menu.add_command(label="4x4", command=lambda: self.change_grid_size(4))
         grid_menu.add_command(label="5x5", command=lambda: self.change_grid_size(5))
         menubar.add_cascade(label="Grid Size", menu=grid_menu)
-
         # Initialize the timer
         self.timer_time = 0
         self.timer_label = tk.Label(self.root, text="Time: 0 seconds", font=("Helvetica", 12))
         self.timer_label.grid(row=1, column=0, columnspan=self.game_size, padx=10, pady=5)
-
         # Start the timer
         self.update_timer()
-
+    def set_human_vs_human(self):
+        # Change the game mode to "Human vs Human"
+        self.game_mode = "Human vs Human"
+        self.reset_game()
+    def make_human_move(self, button_position):
+        board_position = self.button_position_list.index(button_position)
+        if self.board[board_position] == "":
+            self.board[board_position] = self.current_player
+            self.buttons[board_position].config(text=self.current_player)
+            self.current_player = "O" if self.current_player == "X" else "X"
+            self.turn_label.config(text=f"Turn: {self.current_player}")
+            self.check_for_sets()
+            if self.is_board_full():
+                self.reset_game()
     def create_board(self):
         for row in range(self.game_size):
             for col in range(self.game_size):
@@ -65,12 +72,10 @@ class TicTacToe:
                                    command=lambda button_position=button_position: self.clicked(button_position))
                 button.grid(row=row + 2, column=col, padx=5, pady=5, sticky="nswe")
                 self.buttons.append(button)
-
         # Configure row and column properties to make buttons resize properly
         for i in range(self.game_size):
             self.root.grid_rowconfigure(i + 2, weight=1)
             self.root.grid_columnconfigure(i, weight=1)
-
     def change_grid_size(self, size):
         self.game_size = size
         for button in self.buttons:
@@ -79,7 +84,6 @@ class TicTacToe:
         self.button_position_list.clear()
         self.board = [""] * (self.game_size ** 2)
         self.create_board()
-
     def clicked(self, button_position):
         board_position = self.button_position_list.index(button_position)
         if self.board[board_position] == "":
@@ -88,7 +92,12 @@ class TicTacToe:
             self.current_player = "O" if self.current_player == "X" else "X"
             self.turn_label.config(text=f"Turn: {self.current_player}")
             self.check_for_sets()
-
+            if self.is_board_full():
+                self.reset_game()
+            if self.game_mode == "Human vs Human":
+               self.make_human_move(button_position)
+        else:
+            self.make_computer_move()
     def check_for_sets(self):
         for row in range(self.game_size):
             for col in range(self.game_size):
@@ -110,54 +119,48 @@ class TicTacToe:
                                 == self.board[temp_position_3] == "X" and temp_set not in self.completed_sets:
                             self.player_wins["X"] += 1
                             self.highlight_winning_set(temp_set, "X")
-                            self.reset_game()
-                            print("Player X wins!")
+                            #self.reset_game()
+                            #print("Player X wins!")
+                            self.completed_sets.append(temp_set)
+                            self.completed_sets.append(inverted_temp_set)
                         elif self.board[temp_position_1] \
                                 == self.board[temp_position_2] \
                                 == self.board[temp_position_3] == "O" and temp_set not in self.completed_sets:
                             self.player_wins["O"] += 1
                             self.highlight_winning_set(temp_set, "O")
-                            self.reset_game()
-                            print("Player O wins!")
+                            #self.reset_game()
+                            #print("Player O wins!")
+                            self.completed_sets.append(temp_set)
+                            self.completed_sets.append(inverted_temp_set)
                     except:
                         pass
-
     def highlight_winning_set(self, winning_set, player):
         for position in winning_set:
             self.buttons[position].config(bg="green", text=player)
-        self.root.after(1500, self.reset_highlighted_cells, winning_set)
-
-    def reset_highlighted_cells(self, winning_set):
-        for position in winning_set:
-            self.buttons[position].config(bg="SystemButtonFace", text="")
-
     def reset_game(self):
         # Clear the board and reset the game
         for button in self.buttons:
             button.config(text="")
+            button.config(bg="white smoke")
         self.board = [""] * (self.game_size ** 2)
         self.current_player = "X"
         self.turn_label.config(text=f"Turn: {self.current_player}")
         self.timer_time = 0
         self.update_win_labels()
         self.completed_sets = []
-
     def exit_game(self):
         self.root.destroy()
-
     def update_timer(self):
         self.timer_time += 1
         self.timer_label.config(text=f"Time: {self.timer_time} seconds")
         self.root.after(1000, self.update_timer)  # Update every 1000ms (1 second)
-
     def update_win_labels(self):
         self.player_x_label.config(text=f"Player X Wins: {self.player_wins['X']}")
         self.player_o_label.config(text=f"Player O Wins: {self.player_wins['O']}")
-
     def run(self):
         self.root.mainloop()
-
-
+    def is_board_full(self):
+        return "" not in self.board
 if __name__ == "__main__":
     game = TicTacToe()
     game.run()

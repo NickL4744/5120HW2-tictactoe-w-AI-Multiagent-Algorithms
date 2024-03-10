@@ -17,6 +17,7 @@ class TicTacToe:
         self.player_wins = {"X": 0, "O": 0}
         self.game_status = GameStatus(np.zeros((self.game_size, self.game_size), dtype=int), True)
         self.game_mode = "Human vs Human"
+        self.algorithm = "Minimax"  # Default algorithm is set to Minimax
         # Add a Reset button
         reset_button = tk.Button(self.root, text="Reset", command=self.reset_game, bg="orange", fg="black")
         reset_button.grid(row=0, column=0, padx=10, pady=10)
@@ -45,6 +46,11 @@ class TicTacToe:
         grid_menu.add_command(label="4x4", command=lambda: self.change_grid_size(4))
         grid_menu.add_command(label="5x5", command=lambda: self.change_grid_size(5))
         menubar.add_cascade(label="Grid Size", menu=grid_menu)
+        # Add a menu for algorithm selection
+        algorithm_menu = tk.Menu(menubar, tearoff=0)
+        algorithm_menu.add_command(label="Minimax", command=lambda: self.set_algorithm("Minimax"))
+        algorithm_menu.add_command(label="Negamax", command=lambda: self.set_algorithm("Negamax"))
+        menubar.add_cascade(label="Algorithm", menu=algorithm_menu)
         # Initialize the timer
         self.timer_time = 0
         self.timer_label = tk.Label(self.root, text="Time: 0 seconds", font=("Helvetica", 12))
@@ -66,8 +72,12 @@ class TicTacToe:
 
     def make_computer_move(self):
         if self.game_mode == "Human vs Computer":
-            # Implement the logic for the computer's move using the minimax algorithm
-            best_move = self.minimax(self.board, "O")  # Assuming "O" is the computer's symbol
+            # Implement the logic for the computer's move using the selected algorithm
+            if self.algorithm == "Minimax":
+                best_move = self.minimax(self.board, "O")  # Assuming "O" is the computer's symbol
+            else:
+                best_move = self.negamax(self.board, "O")  # Assuming "O" is the computer's symbol
+            
             self.update_board(best_move)
             self.check_for_sets()
             if self.is_board_full():
@@ -200,15 +210,18 @@ class TicTacToe:
             if self.is_board_full():
                 self.reset_game()
 
-    def minimax(self, board, player):
-        # Convert board to numpy array
-        np_board = np.array(board).reshape(self.game_size, self.game_size)
+    def set_algorithm(self, algorithm):
+        # Set the selected algorithm
+        self.algorithm = algorithm
 
-        # Call minimax or negamax algorithm here and return the best move
-        # Example: best_move = minimax(np_board, player)
-        # Implement the minimax or negamax function in the multiAgents module
-        best_move = minimax(board, "O", True)
-        
+    def minimax(self, board, player):
+        # Call minimax algorithm here and return the best move
+        best_move = minimax(board, player, True)
+        return best_move
+
+    def negamax(self, board, player):
+        # Call negamax algorithm here and return the best move
+        best_move = negamax(board, player, True)
         return best_move
 
 if __name__ == "__main__":

@@ -175,10 +175,19 @@ class RandomBoardTicTacToe:
 
     def play_ai(self):
 
+        total_temp_set = []
+        for i in range(len(self.game_state.board_state)):
+            temp_set = []
+            for j in range(len(self.game_state.board_state)):
+                temp = self.game_state.board_state[i][j]
+                temp_set.append(temp)
+            total_temp_set.append(temp_set)
+        temp_game = GameStatus(total_temp_set, False)
+
         if self.algorithm_mode == "minimax":
-            value, best_move = minimax(self.game_state, 100, self.game_state.turn_O)
+            value, best_move = minimax(temp_game, 5, temp_game.turn_O)
         else:
-            value, best_move = negamax(self.game_state, 100, self.game_state.turn_O)
+            value, best_move = negamax(temp_game, 5, temp_game.turn_O)
         print(self.game_state.board_state)
 
 

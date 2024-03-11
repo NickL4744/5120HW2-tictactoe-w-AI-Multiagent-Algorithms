@@ -8,24 +8,25 @@ def minimax(game_state: GameStatus, depth: int, maximizingPlayer: bool, alpha=fl
         return utility_value, None
 
     if maximizingPlayer:
-        print("running maximizingPlayer")
         # Initialize the best move and value to negative infinity
         max_value = float('-inf')
-        best_move = None
+        best_move_max = None
 
         # Loop through all possible moves
 
         for move in game_state.get_moves():
             # Make the move and get the new game state
+
             new_game_state = game_state.get_new_state(move)
 
             # Get the value and best move for the minimizing player
 
-            value, best_move = minimax(new_game_state, depth - 1, False, alpha, beta)
+            value, best_move_max = minimax(new_game_state, depth - 1, False, alpha, beta)
+
 
             if value > max_value:
                 max_value = value
-                best_move = move
+                best_move_max = move
 
             # Prune the search tree if necessary
             alpha = max(alpha, value)
@@ -33,13 +34,12 @@ def minimax(game_state: GameStatus, depth: int, maximizingPlayer: bool, alpha=fl
                 break
 
         # Return the best value and best move
-        return max_value, best_move
+        return max_value, best_move_max
 
     else:
-        print("running minimzingPlayer")
         # Initialize the best move and value to infinity
         min_value = float('inf')
-        best_move = None
+        best_move_min = None
 
         # Loop through all possible moves
 
@@ -49,11 +49,11 @@ def minimax(game_state: GameStatus, depth: int, maximizingPlayer: bool, alpha=fl
 
             # Get the value and best move for the maximizing player
 
-            value, best_move = minimax(new_game_state, depth - 1, True, alpha, beta)
+            value, best_move_min = minimax(new_game_state, depth - 1, True, alpha, beta)
 
             if value < min_value:
                 min_value = value
-                best_move = move
+                best_move_min = move
 
             # Prune the search tree if necessary
             beta = min(beta, value)
@@ -61,7 +61,7 @@ def minimax(game_state: GameStatus, depth: int, maximizingPlayer: bool, alpha=fl
                 break
 
         # Return the best value and best move
-        return min_value, best_move
+        return min_value, best_move_min
 
 
 def negamax(game_status: GameStatus, depth: int, turn_multiplier: int, alpha=float('-inf'), beta=float('inf')):

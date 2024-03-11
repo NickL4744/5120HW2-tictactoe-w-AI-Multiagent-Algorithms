@@ -51,6 +51,7 @@ class RandomBoardTicTacToe:
         self.algorithm_mode = "minimax"
         self.final_score = 0
 
+
         self.game_reset()
 
     def draw_game(self):
@@ -172,13 +173,14 @@ class RandomBoardTicTacToe:
         self.game_state = self.game_state.get_new_state(move)
 
 
-
     def play_ai(self):
 
         if self.algorithm_mode == "minimax":
             value, best_move = minimax(self.game_state, 100, self.game_state.turn_O)
         else:
             value, best_move = negamax(self.game_state, 100, self.game_state.turn_O)
+        print(self.game_state.board_state)
+
 
         """
         YOUR CODE HERE TO CALL MINIMAX OR NEGAMAX DEPENDEING ON WHICH ALGORITHM SELECTED FROM THE GUI
@@ -188,7 +190,7 @@ class RandomBoardTicTacToe:
         THE RETURN VALUES FROM YOUR MINIMAX/NEGAMAX ALGORITHM SHOULD BE THE SCORE, MOVE WHERE SCORE IS AN INTEGER
         NUMBER AND MOVE IS AN X,Y LOCATION RETURNED BY THE AGENT
         """
-        print(best_move)
+
         row = best_move[0]
         col = best_move[1]
         self.change_turn()
@@ -288,10 +290,9 @@ class RandomBoardTicTacToe:
 
                                 # AI uses their turn to make a move, and this function should set
                                 # the turn back to the player
-                                pygame.time.wait(random.randint(500, 3000))
-                                print("before")
-                                print(self.game_state.board_state)
-                                self.play_ai()
+                                if not self.is_game_over():
+                                    pygame.time.wait(random.randint(500, 3000))
+                                    self.play_ai()
 
                     if self.is_game_over():
                         score_font = pygame.font.SysFont("Arial", 30)
@@ -301,7 +302,6 @@ class RandomBoardTicTacToe:
                         text_rect = text.get_rect(center=(self.width // 2, self.height // 2 - 50))
                         self.screen.blit(text, text_rect)
                         pygame.display.update()
-
 
             pygame.display.update()
 

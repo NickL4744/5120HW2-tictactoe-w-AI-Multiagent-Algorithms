@@ -31,7 +31,6 @@ class GameStatus:
         return True
 
     def get_scores(self):
-        print("running get_scores")
         for row in range(len(self.board_state)):
             for col in range(len(self.board_state)):
                 # There are 8 directions you could go in to find a set
@@ -98,7 +97,6 @@ class GameStatus:
         return self.score
 
     def get_moves(self):
-        print("running get_moves")
         moves = []
         row = -1
         for row_set in self.board_state:
@@ -108,21 +106,19 @@ class GameStatus:
                 col += 1
                 if col_val == 0:
                     moves.append([row, col])
-
+        print(moves)
         return moves
 
     def get_new_state(self, move):
-        print("running get_new_state")
         new_board_state = self.board_state.copy()
         x, y = move[0], move[1]
         if self.turn_O:
             new_board_state[x][y] = 1
         else:
             new_board_state[x][y] = -1
-        return GameStatus(new_board_state, self.turn_O)
+        return GameStatus(new_board_state, not self.turn_O)
 
     def determine_winner(self):
-        print("running determine_winner")
         final_score = self.get_scores()
         if final_score > 0:
             message = f"'X' wins! Score: {final_score}"

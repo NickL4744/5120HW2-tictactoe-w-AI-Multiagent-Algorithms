@@ -106,11 +106,19 @@ class GameStatus:
                 col += 1
                 if col_val == 0:
                     moves.append([row, col])
-        print(moves)
+
         return moves
 
     def get_new_state(self, move):
-        new_board_state = self.board_state.copy()
+
+        total_temp_set = []
+        for i in range(len(self.board_state)):
+            temp_set = []
+            for j in range(len(self.board_state)):
+                temp = self.board_state[i][j]
+                temp_set.append(temp)
+            total_temp_set.append(temp_set)
+        new_board_state = total_temp_set
         x, y = move[0], move[1]
         if self.turn_O:
             new_board_state[x][y] = 1
